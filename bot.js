@@ -4,6 +4,7 @@ var auth = require('./auth.json');
 var compliments = require('./compliments.json')
 var events = require('./events.js')
 var st = require('striptags')
+var cheerio = require('cheerio')
 
 var https= require('https')
 // Configure logger settings
@@ -17,6 +18,19 @@ var bot = new Discord.Client({
 	autorun: true
 });
 
+function formatted(htmlText){
+	const d = cheerio.load(htmlText);
+	let text = '';
+	d('a').each(function(){
+		d(this).replaceWith( st(d(this).html())  );
+	});
+	d('span').each(function(){
+		text = text.concat(d(this).text() + '\n');
+		
+	});
+	return text;
+}
+
 function eventList(data) {
 	obj = JSON.parse(data);
 	newobj = []
@@ -25,15 +39,21 @@ function eventList(data) {
 		newobj.push(
 			{
 				"title": obj[x].title,
-				"description": st(obj[x].description),
+				"description": formatted(obj[x].description),
 				"location": obj[x].location,
 				"starts": obj[x].starts,
 				"ends": obj[x].ends
 			}
 		);
 	}
+
+	//TODO: format the list into a string HERE so that you
+	// don't have to use JSON.stringify- which is fucking up the output.
+
+
 	console.log(newobj);
-	return newobj;
+	// return newobj;
+	return formatted(obj[0].description);
 }
 
 
@@ -74,7 +94,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 						for (x in y)
 						 bot.sendMessage({
 						 	to: channelID,
-						 	message: JSON.stringify(y)})
+						 	message: y})
 					});
 				})
 				break;
