@@ -22,7 +22,8 @@ function formatted(htmlText){
 	const d = cheerio.load(htmlText);
 	let text = '';
 	d('a').each(function(){
-		d(this).replaceWith( st(d(this).html())  );
+		d(this).replaceWith( d(this).html() + d(this).attr('href'));
+	
 	});
 	d('span').each(function(){
 		text = text.concat(d(this).text() + '\n');
@@ -37,13 +38,13 @@ function eventList(data) {
 	
 	for (x in obj){
 		newobj.push(
-			{
-				"title": obj[x].title,
-				"description": formatted(obj[x].description),
-				"location": obj[x].location,
-				"starts": obj[x].starts,
-				"ends": obj[x].ends
-			}
+			
+				obj[x].title + "\n" +
+				formatted(obj[x].description) + "\n" +
+				obj[x].location + "\n" +
+				obj[x].starts + "\n" +
+				obj[x].ends + "\n" 
+			
 		);
 	}
 
@@ -52,8 +53,8 @@ function eventList(data) {
 
 
 	console.log(newobj);
-	// return newobj;
-	return formatted(obj[0].description);
+	return newobj;
+
 }
 
 
